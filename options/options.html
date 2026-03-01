@@ -8,7 +8,57 @@
 </head>
 <body>
   <div class="container">
-    <h1>OLED Dark Mode Settings</h1>
+    <h1>OLED Dark Mode <span class="ver">v2.0</span></h1>
+
+    <!-- Mode -->
+    <section>
+      <h2>Filtering Mode</h2>
+      <p class="help">Choose how dark mode applies to sites.</p>
+      <div class="row">
+        <label class="radio-label">
+          <input type="radio" name="mode" value="blacklist" id="modeBlacklist" checked>
+          <span>Blacklist</span>
+          <span class="radio-help">Dark on all sites except excluded ones</span>
+        </label>
+      </div>
+      <div class="row">
+        <label class="radio-label">
+          <input type="radio" name="mode" value="whitelist" id="modeWhitelist">
+          <span>Whitelist</span>
+          <span class="radio-help">Dark only on listed sites</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Excluded sites (blacklist mode) -->
+    <section id="excludedSection">
+      <h2>Excluded Sites</h2>
+      <p class="help">Dark mode will not apply on these domains.</p>
+      <ul id="excludedList"></ul>
+      <div class="row">
+        <input type="text" id="newExcludedSite" placeholder="example.com">
+        <button class="btn" id="addExcludedBtn">Add</button>
+      </div>
+    </section>
+
+    <!-- Whitelisted sites (whitelist mode) -->
+    <section id="whitelistSection" style="display:none">
+      <h2>Whitelisted Sites</h2>
+      <p class="help">Dark mode will only apply on these domains.</p>
+      <ul id="whitelistedList"></ul>
+      <div class="row">
+        <input type="text" id="newWhitelistSite" placeholder="example.com">
+        <button class="btn" id="addWhitelistBtn">Add</button>
+      </div>
+    </section>
+
+    <!-- Per-site overrides -->
+    <section>
+      <h2>Per-Site Overrides</h2>
+      <p class="help">Sites with custom brightness, contrast, or theme settings.</p>
+      <ul id="overridesList"></ul>
+      <p class="help" id="noOverrides">No per-site overrides set.</p>
+    </section>
 
     <!-- Schedule -->
     <section>
@@ -28,15 +78,17 @@
       </div>
     </section>
 
-    <!-- Excluded sites -->
+    <!-- Behaviour -->
     <section>
-      <h2>Excluded Sites</h2>
-      <p class="help">Dark mode will not apply on these domains.</p>
-      <ul id="excludedList"></ul>
+      <h2>Behaviour</h2>
       <div class="row">
-        <input type="text" id="newSite" placeholder="example.com">
-        <button class="btn" id="addSiteBtn">Add</button>
+        <label for="respectNativeDark">Skip sites with native dark mode</label>
+        <label class="switch" for="respectNativeDark">
+          <input type="checkbox" id="respectNativeDark">
+          <span class="slider"></span>
+        </label>
       </div>
+      <p class="help indent">If a site already has a dark background, skip the inversion.</p>
     </section>
 
     <!-- Keyboard shortcut -->
@@ -44,8 +96,23 @@
       <h2>Keyboard Shortcut</h2>
       <p class="help">
         Default: <kbd>Ctrl+Shift+D</kbd> (configurable in
-        <code>about:addons</code> &rarr; gear icon &rarr; Manage Extension Shortcuts).
+        <code>about:addons</code> &rarr; gear &rarr; Manage Extension Shortcuts).
       </p>
+    </section>
+
+    <!-- Import / Export -->
+    <section>
+      <h2>Backup &amp; Restore</h2>
+      <p class="help">Export your settings as JSON or import from a backup.</p>
+      <div class="row">
+        <button class="btn" id="exportBtn">Export</button>
+        <button class="btn" id="importBtn">Import</button>
+      </div>
+      <textarea id="jsonArea" rows="4" placeholder="Paste JSON here to import..." style="display:none"></textarea>
+      <div class="row" id="importActions" style="display:none">
+        <button class="btn primary" id="confirmImport">Apply Import</button>
+        <button class="btn" id="cancelImport">Cancel</button>
+      </div>
     </section>
 
     <div class="actions">

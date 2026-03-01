@@ -1,4 +1,4 @@
-/* OLED Dark Mode - Options page styles */
+/* OLED Dark Mode v2 - Options page styles */
 * {
   margin: 0;
   padding: 0;
@@ -14,7 +14,7 @@ body {
 }
 
 .container {
-  max-width: 480px;
+  max-width: 520px;
   margin: 0 auto;
 }
 
@@ -24,16 +24,21 @@ h1 {
   color: #fff;
   margin-bottom: 20px;
 }
+.ver {
+  font-size: 12px;
+  color: #444;
+  font-weight: 400;
+}
 
 h2 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #ccc;
+  color: #bbb;
   margin-bottom: 8px;
 }
 
 section {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding: 14px;
   background: #111;
   border-radius: 10px;
@@ -41,17 +46,19 @@ section {
 
 .help {
   font-size: 12px;
-  color: #777;
+  color: #555;
   margin-bottom: 10px;
+  line-height: 1.4;
 }
 
 kbd {
-  background: #222;
-  border: 1px solid #444;
+  background: #1a1a1a;
+  border: 1px solid #333;
   border-radius: 4px;
   padding: 1px 5px;
   font-family: monospace;
   font-size: 12px;
+  color: #ccc;
 }
 
 code {
@@ -71,10 +78,34 @@ code {
 .row label {
   flex-shrink: 0;
   font-size: 13px;
-  color: #bbb;
+  color: #aaa;
 }
 .indent {
   padding-left: 16px;
+}
+
+/* ── Radio labels ── */
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+.radio-label input[type="radio"] {
+  accent-color: #00c853;
+}
+.radio-label span:first-of-type {
+  font-size: 13px;
+  color: #ddd;
+  font-weight: 500;
+}
+.radio-help {
+  font-size: 11px;
+  color: #555;
+  width: 100%;
+  padding-left: 24px;
+  margin-top: -4px;
 }
 
 /* ── Inputs ── */
@@ -82,7 +113,7 @@ input[type="time"],
 input[type="text"] {
   background: #1a1a1a;
   color: #eee;
-  border: 1px solid #333;
+  border: 1px solid #2a2a2a;
   border-radius: 6px;
   padding: 6px 10px;
   font-size: 13px;
@@ -94,6 +125,23 @@ input[type="text"]:focus {
 }
 input[type="text"] {
   flex: 1;
+}
+
+textarea {
+  width: 100%;
+  background: #1a1a1a;
+  color: #ccc;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-family: monospace;
+  outline: none;
+  resize: vertical;
+  margin-top: 8px;
+}
+textarea:focus {
+  border-color: #00c853;
 }
 
 /* ── Toggle switch ── */
@@ -112,7 +160,7 @@ input[type="text"] {
 .slider {
   position: absolute;
   inset: 0;
-  background: #333;
+  background: #2a2a2a;
   border-radius: 22px;
   cursor: pointer;
   transition: background 0.2s;
@@ -124,7 +172,7 @@ input[type="text"] {
   bottom: 3px;
   width: 16px;
   height: 16px;
-  background: #888;
+  background: #666;
   border-radius: 50%;
   transition: transform 0.2s, background 0.2s;
 }
@@ -136,10 +184,13 @@ input:checked + .slider::before {
   background: #fff;
 }
 
-/* ── Excluded list ── */
+/* ── Lists ── */
 ul {
   list-style: none;
   margin-bottom: 10px;
+}
+ul:empty {
+  margin-bottom: 0;
 }
 ul li {
   display: flex;
@@ -150,6 +201,12 @@ ul li {
   border-radius: 6px;
   margin-bottom: 4px;
   font-size: 13px;
+  color: #ccc;
+}
+ul li .override-detail {
+  font-size: 10px;
+  color: #555;
+  margin-left: 8px;
 }
 ul li button {
   background: none;
@@ -159,21 +216,26 @@ ul li button {
   font-size: 16px;
   line-height: 1;
   padding: 0 4px;
+  flex-shrink: 0;
+}
+ul li button:hover {
+  color: #ff6659;
 }
 
 /* ── Buttons ── */
 .btn {
   background: #1a1a1a;
   color: #ccc;
-  border: 1px solid #333;
+  border: 1px solid #2a2a2a;
   padding: 7px 14px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
 .btn:hover {
-  background: #272727;
+  background: #222;
+  border-color: #333;
   color: #fff;
 }
 .btn.primary {
