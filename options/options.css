@@ -1,0 +1,203 @@
+/* OLED Dark Mode - Options page styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a0a;
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  padding: 24px;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+section {
+  margin-bottom: 24px;
+  padding: 14px;
+  background: #111;
+  border-radius: 10px;
+}
+
+.help {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+kbd {
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+code {
+  color: #4fc3f7;
+}
+
+/* ── Rows ── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.row:last-child {
+  margin-bottom: 0;
+}
+.row label {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #bbb;
+}
+.indent {
+  padding-left: 16px;
+}
+
+/* ── Inputs ── */
+input[type="time"],
+input[type="text"] {
+  background: #1a1a1a;
+  color: #eee;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  outline: none;
+}
+input[type="time"]:focus,
+input[type="text"]:focus {
+  border-color: #00c853;
+}
+input[type="text"] {
+  flex: 1;
+}
+
+/* ── Toggle switch ── */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #333;
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  bottom: 3px;
+  width: 16px;
+  height: 16px;
+  background: #888;
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+input:checked + .slider {
+  background: #00c853;
+}
+input:checked + .slider::before {
+  transform: translateX(18px);
+  background: #fff;
+}
+
+/* ── Excluded list ── */
+ul {
+  list-style: none;
+  margin-bottom: 10px;
+}
+ul li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: #1a1a1a;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+ul li button {
+  background: none;
+  border: none;
+  color: #f44336;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+/* ── Buttons ── */
+.btn {
+  background: #1a1a1a;
+  color: #ccc;
+  border: 1px solid #333;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.btn:hover {
+  background: #272727;
+  color: #fff;
+}
+.btn.primary {
+  background: #00c853;
+  color: #000;
+  border-color: #00c853;
+  font-weight: 600;
+}
+.btn.primary:hover {
+  background: #00e676;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.saved {
+  color: #00c853;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.saved.show {
+  opacity: 1;
+}

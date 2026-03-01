@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLED Dark Mode - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>OLED Dark Mode Settings</h1>
+
+    <!-- Schedule -->
+    <section>
+      <h2>Schedule</h2>
+      <div class="row">
+        <label for="scheduleEnabled">Enable scheduled dark mode</label>
+        <label class="switch" for="scheduleEnabled">
+          <input type="checkbox" id="scheduleEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="row indent" id="scheduleRow" style="display:none">
+        <label for="scheduleStart">From</label>
+        <input type="time" id="scheduleStart" value="20:00">
+        <label for="scheduleEnd">To</label>
+        <input type="time" id="scheduleEnd" value="07:00">
+      </div>
+    </section>
+
+    <!-- Excluded sites -->
+    <section>
+      <h2>Excluded Sites</h2>
+      <p class="help">Dark mode will not apply on these domains.</p>
+      <ul id="excludedList"></ul>
+      <div class="row">
+        <input type="text" id="newSite" placeholder="example.com">
+        <button class="btn" id="addSiteBtn">Add</button>
+      </div>
+    </section>
+
+    <!-- Keyboard shortcut -->
+    <section>
+      <h2>Keyboard Shortcut</h2>
+      <p class="help">
+        Default: <kbd>Ctrl+Shift+D</kbd> (configurable in
+        <code>about:addons</code> &rarr; gear icon &rarr; Manage Extension Shortcuts).
+      </p>
+    </section>
+
+    <div class="actions">
+      <button class="btn primary" id="saveBtn">Save</button>
+      <span class="saved" id="savedMsg">Saved!</span>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

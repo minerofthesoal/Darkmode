@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLED Dark Mode</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <header>
+      <h1>OLED Dark Mode</h1>
+      <div class="toggle-wrap">
+        <label class="switch" for="globalToggle">
+          <input type="checkbox" id="globalToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </header>
+
+    <section class="site-section">
+      <span class="site-label" id="siteLabel">—</span>
+      <button class="btn btn-sm" id="siteToggle" title="Exclude / include this site">
+        Exclude site
+      </button>
+    </section>
+
+    <section class="controls">
+      <div class="control-row">
+        <label for="brightness">Brightness</label>
+        <input type="range" id="brightness" min="50" max="150" value="100">
+        <span class="val" id="brightnessVal">100%</span>
+      </div>
+      <div class="control-row">
+        <label for="contrast">Contrast</label>
+        <input type="range" id="contrast" min="50" max="150" value="100">
+        <span class="val" id="contrastVal">100%</span>
+      </div>
+      <div class="control-row">
+        <label for="sepia">Sepia</label>
+        <input type="range" id="sepia" min="0" max="100" value="0">
+        <span class="val" id="sepiaVal">0%</span>
+      </div>
+      <div class="control-row">
+        <label for="grayscale">Grayscale</label>
+        <input type="range" id="grayscale" min="0" max="100" value="0">
+        <span class="val" id="grayscaleVal">0%</span>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="control-row toggle-row">
+        <label for="dimImages">Dim images</label>
+        <label class="switch small" for="dimImages">
+          <input type="checkbox" id="dimImages">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="control-row" id="opacityRow" style="display:none">
+        <label for="imageOpacity">Image opacity</label>
+        <input type="range" id="imageOpacity" min="30" max="100" value="90">
+        <span class="val" id="imageOpacityVal">90%</span>
+      </div>
+    </section>
+
+    <footer>
+      <button class="btn btn-sm" id="resetBtn">Reset</button>
+      <a href="#" id="optionsLink">Settings</a>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

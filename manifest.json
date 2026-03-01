@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "OLED Dark Mode",
+  "version": "1.0.0",
+  "description": "Universal OLED dark mode for every website. Preserves images, works on Android and PC.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "<all_urls>"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "oled-dark-mode@firefox-addon",
+      "strict_min_version": "57.0"
+    },
+    "gecko_android": {
+      "strict_min_version": "113.0"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["darkmode.css"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/icon-16.svg",
+      "32": "icons/icon-32.svg",
+      "48": "icons/icon-48.svg"
+    },
+    "default_popup": "popup/popup.html",
+    "default_title": "OLED Dark Mode"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": false
+  },
+  "icons": {
+    "16": "icons/icon-16.svg",
+    "32": "icons/icon-32.svg",
+    "48": "icons/icon-48.svg",
+    "96": "icons/icon-96.svg"
+  },
+  "commands": {
+    "toggle-dark-mode": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+D",
+        "mac": "Command+Shift+D"
+      },
+      "description": "Toggle OLED Dark Mode on/off"
+    }
+  }
+}
