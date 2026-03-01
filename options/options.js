@@ -70,7 +70,7 @@
   // ── Render lists ──
 
   function renderExcluded() {
-    excludedList.innerHTML = "";
+    while (excludedList.firstChild) excludedList.firstChild.remove();
     (settings.excludedSites || []).forEach((site) => {
       excludedList.appendChild(createListItem(site, () => {
         settings.excludedSites = settings.excludedSites.filter((s) => s !== site);
@@ -80,7 +80,7 @@
   }
 
   function renderWhitelisted() {
-    whitelistedList.innerHTML = "";
+    while (whitelistedList.firstChild) whitelistedList.firstChild.remove();
     (settings.whitelistedSites || []).forEach((site) => {
       whitelistedList.appendChild(createListItem(site, () => {
         settings.whitelistedSites = settings.whitelistedSites.filter((s) => s !== site);
@@ -90,7 +90,7 @@
   }
 
   function renderOverrides() {
-    overridesList.innerHTML = "";
+    while (overridesList.firstChild) overridesList.firstChild.remove();
     const overrides = settings.siteOverrides || {};
     const keys = Object.keys(overrides);
     noOverrides.style.display = keys.length === 0 ? "block" : "none";
