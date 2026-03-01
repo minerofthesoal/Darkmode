@@ -1,37 +1,40 @@
-// OLED Dark Mode v2 - Popup script
+// OLED Dark Mode v3 - Popup script
 (function () {
   "use strict";
 
-  const $ = (id) => document.getElementById(id);
+  var $ = function (id) { return document.getElementById(id); };
 
   // Elements
-  const globalToggle = $("globalToggle");
-  const siteLabel = $("siteLabel");
-  const modeBadge = $("modeBadge");
-  const siteToggle = $("siteToggle");
-  const themeRow = $("themeRow");
-  const brightness = $("brightness");
-  const contrast = $("contrast");
-  const sepia = $("sepia");
-  const grayscale = $("grayscale");
-  const dimImages = $("dimImages");
-  const imageOpacity = $("imageOpacity");
-  const opacityRow = $("opacityRow");
-  const perSiteToggle = $("perSiteToggle");
-  const perSiteInfo = $("perSiteInfo");
-  const clearOverride = $("clearOverride");
-  const resetBtn = $("resetBtn");
-  const optionsLink = $("optionsLink");
+  var globalToggle = $("globalToggle");
+  var siteLabel = $("siteLabel");
+  var modeBadge = $("modeBadge");
+  var siteToggle = $("siteToggle");
+  var tabToggle = $("tabToggle");
+  var themeRow = $("themeRow");
+  var themeRow2 = $("themeRow2");
+  var brightness = $("brightness");
+  var contrast = $("contrast");
+  var sepia = $("sepia");
+  var grayscale = $("grayscale");
+  var dimImages = $("dimImages");
+  var imageOpacity = $("imageOpacity");
+  var opacityRow = $("opacityRow");
+  var textReadability = $("textReadability");
+  var perSiteToggle = $("perSiteToggle");
+  var perSiteInfo = $("perSiteInfo");
+  var clearOverride = $("clearOverride");
+  var resetBtn = $("resetBtn");
+  var optionsLink = $("optionsLink");
 
-  let currentSettings = null;
-  let currentUrl = "";
-  let currentHost = "";
-  let perSiteMode = false;
+  var currentSettings = null;
+  var currentUrl = "";
+  var currentHost = "";
+  var perSiteMode = false;
 
   // ── Load state from background ──
 
   async function loadState() {
-    const resp = await browser.runtime.sendMessage({ type: "GET_STATE_FOR_TAB" });
+    var resp = await browser.runtime.sendMessage({ type: "GET_STATE_FOR_TAB" });
     currentSettings = resp.settings;
     currentUrl = resp.url || "";
 
@@ -40,6 +43,15 @@
     // Mode badge
     modeBadge.textContent = currentSettings.mode === "whitelist" ? "whitelist" : "blacklist";
 
+    // Tab toggle indicator
+    if (resp.tabOverride) {
+      tabToggle.classList.add("active");
+      tabToggle.title = "Tab has override — click to clear";
+    } else {
+      tabToggle.classList.remove("active");
+      tabToggle.title = "Toggle this tab only";
+    }
+
     // Site label
     try {
       currentHost = new URL(currentUrl).hostname;
@@ -47,27 +59,27 @@
       siteToggle.disabled = false;
 
       if (currentSettings.mode === "blacklist") {
-        const excluded = currentSettings.excludedSites.includes(currentHost);
+        var excluded = currentSettings.excludedSites.includes(currentHost);
         siteToggle.textContent = excluded ? "Include site" : "Exclude site";
       } else {
-        const included = currentSettings.whitelistedSites.includes(currentHost);
+        var included = currentSettings.whitelistedSites.includes(currentHost);
         siteToggle.textContent = included ? "Remove site" : "Add site";
       }
-    } catch {
+    } catch (e) {
       currentHost = "";
       siteLabel.textContent = "--";
       siteToggle.disabled = true;
     }
 
     // Check for per-site override
-    const override = currentHost && currentSettings.siteOverrides &&
+    var override = currentHost && currentSettings.siteOverrides &&
       currentSettings.siteOverrides[currentHost];
     perSiteMode = !!override;
     perSiteToggle.checked = perSiteMode;
     perSiteInfo.style.display = perSiteMode ? "flex" : "none";
 
     // Load values (per-site override wins)
-    const vals = getEffectiveValues();
+    var vals = getEffectiveValues();
     brightness.value = vals.brightness;
     $("brightnessVal").textContent = vals.brightness + "%";
     contrast.value = vals.contrast;
@@ -82,16 +94,24 @@
     $("imageOpacityVal").textContent = currentSettings.imageOpacity + "%";
     opacityRow.style.display = currentSettings.dimImages ? "flex" : "none";
 
-    // Active theme
-    const activeTheme = vals.theme || "oled";
-    themeRow.querySelectorAll(".theme-btn").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.theme === activeTheme);
-    });
+    textReadability.checked = currentSettings.textReadability || false;
+
+    // Active theme — highlight in both rows
+    var activeTheme = vals.theme || "oled";
+    var allBtns = document.querySelectorAll(".theme-btn");
+    for (var i = 0; i < allBtns.length; i++) {
+      var btn = allBtns[i];
+      if (btn.dataset.theme === activeTheme) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    }
   }
 
   function getEffectiveValues() {
-    const s = currentSettings;
-    const base = {
+    var s = currentSettings;
+    var base = {
       brightness: s.brightness,
       contrast: s.contrast,
       sepia: s.sepia,
@@ -99,7 +119,7 @@
       theme: s.theme || "oled"
     };
     if (currentHost && s.siteOverrides && s.siteOverrides[currentHost]) {
-      const o = s.siteOverrides[currentHost];
+      var o = s.siteOverrides[currentHost];
       if (o.brightness !== undefined) base.brightness = o.brightness;
       if (o.contrast !== undefined) base.contrast = o.contrast;
       if (o.sepia !== undefined) base.sepia = o.sepia;
@@ -113,14 +133,25 @@
 
   // ── Event handlers ──
 
-  globalToggle.addEventListener("change", async () => {
+  globalToggle.addEventListener("change", async function () {
     await browser.runtime.sendMessage({ type: "TOGGLE" });
     await loadState();
   });
 
-  siteToggle.addEventListener("click", async () => {
+  // Tab-specific toggle
+  tabToggle.addEventListener("click", async function () {
+    if (tabToggle.classList.contains("active")) {
+      // Clear tab override
+      await browser.runtime.sendMessage({ type: "CLEAR_TAB_OVERRIDE" });
+    } else {
+      await browser.runtime.sendMessage({ type: "TOGGLE_TAB" });
+    }
+    await loadState();
+  });
+
+  siteToggle.addEventListener("click", async function () {
     if (!currentHost) return;
-    const isExcluded = currentSettings.mode === "blacklist"
+    var isExcluded = currentSettings.mode === "blacklist"
       ? currentSettings.excludedSites.includes(currentHost)
       : !currentSettings.whitelistedSites.includes(currentHost);
 
@@ -131,38 +162,38 @@
     await loadState();
   });
 
-  // Theme buttons
-  themeRow.addEventListener("click", (e) => {
-    const btn = e.target.closest(".theme-btn");
+  // Theme buttons — handle both rows
+  function handleThemeClick(e) {
+    var btn = e.target.closest(".theme-btn");
     if (!btn) return;
-    const theme = btn.dataset.theme;
+    var theme = btn.dataset.theme;
 
     if (perSiteMode && currentHost) {
-      // Save as per-site override
-      const override = (currentSettings.siteOverrides && currentSettings.siteOverrides[currentHost]) || {};
+      var override = (currentSettings.siteOverrides && currentSettings.siteOverrides[currentHost]) || {};
       override.theme = theme;
       browser.runtime.sendMessage({
         type: "SAVE_SITE_OVERRIDE",
         url: currentUrl,
-        override
-      }).then(() => loadState());
+        override: override
+      }).then(function () { loadState(); });
     } else {
       currentSettings.theme = theme;
       browser.runtime.sendMessage({
         type: "SAVE_SETTINGS",
         settings: currentSettings
-      }).then(() => loadState());
+      }).then(function () { loadState(); });
     }
-  });
+  }
+  themeRow.addEventListener("click", handleThemeClick);
+  themeRow2.addEventListener("click", handleThemeClick);
 
   // Per-site toggle
-  perSiteToggle.addEventListener("change", async () => {
+  perSiteToggle.addEventListener("change", async function () {
     perSiteMode = perSiteToggle.checked;
     perSiteInfo.style.display = perSiteMode ? "flex" : "none";
 
     if (perSiteMode && currentHost) {
-      // Create override from current slider values
-      const override = {
+      var override = {
         brightness: Number(brightness.value),
         contrast: Number(contrast.value),
         sepia: Number(sepia.value),
@@ -172,7 +203,7 @@
       await browser.runtime.sendMessage({
         type: "SAVE_SITE_OVERRIDE",
         url: currentUrl,
-        override
+        override: override
       });
     } else if (!perSiteMode && currentHost) {
       await browser.runtime.sendMessage({
@@ -183,7 +214,7 @@
     await loadState();
   });
 
-  clearOverride.addEventListener("click", async () => {
+  clearOverride.addEventListener("click", async function () {
     if (!currentHost) return;
     await browser.runtime.sendMessage({
       type: "CLEAR_SITE_OVERRIDE",
@@ -196,7 +227,7 @@
   // Slider save logic
   function saveSliders() {
     if (perSiteMode && currentHost) {
-      const override = {
+      var override = {
         brightness: Number(brightness.value),
         contrast: Number(contrast.value),
         sepia: Number(sepia.value),
@@ -206,7 +237,7 @@
       browser.runtime.sendMessage({
         type: "SAVE_SITE_OVERRIDE",
         url: currentUrl,
-        override
+        override: override
       });
     } else {
       currentSettings.brightness = Number(brightness.value);
@@ -215,6 +246,7 @@
       currentSettings.grayscale = Number(grayscale.value);
       currentSettings.dimImages = dimImages.checked;
       currentSettings.imageOpacity = Number(imageOpacity.value);
+      currentSettings.textReadability = textReadability.checked;
       browser.runtime.sendMessage({
         type: "SAVE_SETTINGS",
         settings: currentSettings
@@ -222,25 +254,33 @@
     }
   }
 
-  let saveTimer = null;
+  var saveTimer = null;
   function debounceSave() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(saveSliders, 150);
   }
 
-  [brightness, contrast, sepia, grayscale, imageOpacity].forEach((slider) => {
-    slider.addEventListener("input", () => {
+  [brightness, contrast, sepia, grayscale, imageOpacity].forEach(function (slider) {
+    slider.addEventListener("input", function () {
       $(slider.id + "Val").textContent = slider.value + "%";
       debounceSave();
     });
   });
 
-  dimImages.addEventListener("change", () => {
+  dimImages.addEventListener("change", function () {
     opacityRow.style.display = dimImages.checked ? "flex" : "none";
     debounceSave();
   });
 
-  resetBtn.addEventListener("click", async () => {
+  textReadability.addEventListener("change", function () {
+    currentSettings.textReadability = textReadability.checked;
+    browser.runtime.sendMessage({
+      type: "SAVE_SETTINGS",
+      settings: currentSettings
+    });
+  });
+
+  resetBtn.addEventListener("click", async function () {
     if (perSiteMode && currentHost) {
       await browser.runtime.sendMessage({
         type: "CLEAR_SITE_OVERRIDE",
@@ -254,6 +294,7 @@
     currentSettings.dimImages = false;
     currentSettings.imageOpacity = 90;
     currentSettings.theme = "oled";
+    currentSettings.textReadability = false;
     await browser.runtime.sendMessage({
       type: "SAVE_SETTINGS",
       settings: currentSettings
@@ -262,7 +303,7 @@
     await loadState();
   });
 
-  optionsLink.addEventListener("click", (e) => {
+  optionsLink.addEventListener("click", function (e) {
     e.preventDefault();
     browser.runtime.openOptionsPage();
   });

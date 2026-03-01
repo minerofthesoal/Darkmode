@@ -1,4 +1,4 @@
-/* OLED Dark Mode v2 - Options page styles */
+/* OLED Dark Mode v3 - Options page styles */
 * {
   margin: 0;
   padding: 0;
@@ -262,4 +262,32 @@ ul li button:hover {
 }
 .saved.show {
   opacity: 1;
+}
+
+/* ── Android responsive ── */
+@media (pointer: coarse) {
+  body {
+    padding: 16px;
+  }
+  .container {
+    max-width: 100%;
+  }
+  .btn {
+    min-height: 36px;
+    font-size: 14px;
+  }
+  .switch {
+    width: 46px;
+    height: 26px;
+  }
+  .switch .slider::before {
+    width: 20px;
+    height: 20px;
+  }
+  input:checked + .slider::before {
+    transform: translateX(20px);
+  }
+  ul li {
+    padding: 8px 10px;
+  }
 }

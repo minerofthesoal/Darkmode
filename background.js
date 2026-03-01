@@ -1,6 +1,7 @@
-// OLED Dark Mode v2 - Background Script
-// Manages global + per-site state, whitelist/blacklist mode,
-// schedule, keyboard shortcut, badge, import/export.
+// OLED Dark Mode v3 - Background Script
+// Manages global + per-site state, tab-specific overrides,
+// whitelist/blacklist mode, schedule, system theme detection,
+// keyboard shortcut, badge, import/export.
 
 const DEFAULT_SETTINGS = {
   enabled: true,
@@ -9,11 +10,13 @@ const DEFAULT_SETTINGS = {
   contrast: 100,
   sepia: 0,
   grayscale: 0,
-  theme: "oled",          // "oled" | "dark" | "midnight" | "charcoal"
+  theme: "oled",          // "oled" | "dark" | "midnight" | "charcoal" | "nord" | "solarized"
   dimImages: false,
   imageOpacity: 90,
+  // Text readability
+  textReadability: false,  // Force better text contrast
   // Site filtering
-  mode: "blacklist",      // "blacklist" = dark on all sites except excluded
+  mode: "blacklist",      // "blacklist" = dark on all except excluded
                           // "whitelist" = dark only on listed sites
   excludedSites: [],
   whitelistedSites: [],
@@ -24,8 +27,12 @@ const DEFAULT_SETTINGS = {
   scheduleStart: "20:00",
   scheduleEnd: "07:00",
   // Behaviour
-  respectNativeDark: false
+  respectNativeDark: false,
+  followSystemTheme: false  // Auto dark when OS is dark
 };
+
+// Tab-specific overrides (not persisted — cleared on tab close)
+const tabOverrides = {};
 
 // ── State helpers ──
 
@@ -42,8 +49,12 @@ function isWithinSchedule(settings) {
   if (!settings.scheduleEnabled) return true;
   const now = new Date();
   const current = now.getHours() * 60 + now.getMinutes();
-  const [sh, sm] = settings.scheduleStart.split(":").map(Number);
-  const [eh, em] = settings.scheduleEnd.split(":").map(Number);
+  const parts = settings.scheduleStart.split(":");
+  const sh = Number(parts[0]);
+  const sm = Number(parts[1]);
+  const endParts = settings.scheduleEnd.split(":");
+  const eh = Number(endParts[0]);
+  const em = Number(endParts[1]);
   const start = sh * 60 + sm;
   const end = eh * 60 + em;
   if (start <= end) return current >= start && current < end;
@@ -52,108 +63,156 @@ function isWithinSchedule(settings) {
 
 function hostnameFromUrl(url) {
   try { return new URL(url).hostname; }
-  catch { return ""; }
+  catch (e) { return ""; }
 }
 
 function isSiteActive(settings, url) {
   const host = hostnameFromUrl(url);
-  if (!host) return true; // Can't determine — leave enabled
+  if (!host) return true;
   if (settings.mode === "whitelist") {
     return settings.whitelistedSites.some(
-      (s) => host === s || host.endsWith("." + s)
+      function (s) { return host === s || host.endsWith("." + s); }
     );
   }
-  // blacklist mode
   return !settings.excludedSites.some(
-    (s) => host === s || host.endsWith("." + s)
+    function (s) { return host === s || host.endsWith("." + s); }
   );
 }
 
 // ── Badge ──
 
 async function updateBadge(tabId, active) {
-  const text = active ? "ON" : "OFF";
-  const color = active ? "#00e676" : "#757575";
+  var text = active ? "ON" : "OFF";
+  var color = active ? "#00e676" : "#757575";
   try {
-    await browser.browserAction.setBadgeText({ text, tabId });
-    await browser.browserAction.setBadgeBackgroundColor({ color, tabId });
-  } catch {}
+    await browser.browserAction.setBadgeText({ text: text, tabId: tabId });
+    await browser.browserAction.setBadgeBackgroundColor({ color: color, tabId: tabId });
+  } catch (e) { /* tab may have closed */ }
 }
 
 // ── Resolve final state for a tab ──
 
 async function resolveStateForTab(tab) {
-  const settings = await getSettings();
-  let active = settings.enabled && isWithinSchedule(settings);
+  var settings = await getSettings();
+  var active = settings.enabled && isWithinSchedule(settings);
+
   if (active && tab && tab.url) {
     if (!isSiteActive(settings, tab.url)) active = false;
   }
-  return { active, settings };
+
+  // Tab-specific override
+  if (tab && tab.id !== undefined && tabOverrides[tab.id] !== undefined) {
+    active = tabOverrides[tab.id];
+  }
+
+  return { active: active, settings: settings };
 }
 
 // ── Broadcast to all tabs ──
 
 async function broadcastToAllTabs() {
-  const tabs = await browser.tabs.query({});
-  for (const tab of tabs) {
+  var tabs = await browser.tabs.query({});
+  for (var i = 0; i < tabs.length; i++) {
+    var tab = tabs[i];
     try {
-      const { active, settings } = await resolveStateForTab(tab);
+      var result = await resolveStateForTab(tab);
       browser.tabs.sendMessage(tab.id, {
         type: "UPDATE_STATE",
-        active,
-        settings
+        active: result.active,
+        settings: result.settings
       });
-      updateBadge(tab.id, active);
-    } catch {}
+      updateBadge(tab.id, result.active);
+    } catch (e) { /* content script not ready */ }
   }
 }
 
 // ── Message handler ──
 
-browser.runtime.onMessage.addListener((msg, sender) => {
+browser.runtime.onMessage.addListener(function (msg, sender) {
   switch (msg.type) {
 
     case "GET_STATE": {
-      const tab = sender.tab || null;
-      return resolveStateForTab(tab).then(({ active, settings }) => {
-        if (sender.tab) updateBadge(sender.tab.id, active);
-        return { active, settings };
+      var tab = sender.tab || null;
+      return resolveStateForTab(tab).then(function (result) {
+        if (sender.tab) updateBadge(sender.tab.id, result.active);
+        return { active: result.active, settings: result.settings };
       });
     }
 
     case "GET_STATE_FOR_TAB":
-      return browser.tabs.query({ active: true, currentWindow: true }).then(async (tabs) => {
-        const tab = tabs[0] || null;
-        const { active, settings } = await resolveStateForTab(tab);
-        if (tab) updateBadge(tab.id, active);
-        return { active, settings, url: tab ? tab.url : "" };
+      return browser.tabs.query({ active: true, currentWindow: true }).then(async function (tabs) {
+        var tab = tabs[0] || null;
+        var result = await resolveStateForTab(tab);
+        if (tab) updateBadge(tab.id, result.active);
+        var hasTabOverride = tab && tab.id !== undefined && tabOverrides[tab.id] !== undefined;
+        return {
+          active: result.active,
+          settings: result.settings,
+          url: tab ? tab.url : "",
+          tabOverride: hasTabOverride
+        };
       });
 
     case "TOGGLE":
-      return getSettings().then(async (settings) => {
+      return getSettings().then(async function (settings) {
         settings.enabled = !settings.enabled;
         await saveSettings(settings);
         await broadcastToAllTabs();
         return { enabled: settings.enabled };
       });
 
+    case "TOGGLE_TAB":
+      return browser.tabs.query({ active: true, currentWindow: true }).then(async function (tabs) {
+        var tab = tabs[0];
+        if (!tab) return { ok: false };
+        var result = await resolveStateForTab(tab);
+        // Flip tab-specific override
+        tabOverrides[tab.id] = !result.active;
+        try {
+          browser.tabs.sendMessage(tab.id, {
+            type: "UPDATE_STATE",
+            active: !result.active,
+            settings: result.settings
+          });
+          updateBadge(tab.id, !result.active);
+        } catch (e) { /* tab not ready */ }
+        return { ok: true, active: !result.active };
+      });
+
+    case "CLEAR_TAB_OVERRIDE":
+      return browser.tabs.query({ active: true, currentWindow: true }).then(async function (tabs) {
+        var tab = tabs[0];
+        if (tab && tab.id !== undefined) {
+          delete tabOverrides[tab.id];
+          var result = await resolveStateForTab(tab);
+          try {
+            browser.tabs.sendMessage(tab.id, {
+              type: "UPDATE_STATE",
+              active: result.active,
+              settings: result.settings
+            });
+            updateBadge(tab.id, result.active);
+          } catch (e) { /* tab not ready */ }
+        }
+        return { ok: true };
+      });
+
     case "SAVE_SETTINGS":
-      return saveSettings(msg.settings).then(async () => {
+      return saveSettings(msg.settings).then(async function () {
         await broadcastToAllTabs();
         return { ok: true };
       });
 
     case "EXCLUDE_SITE":
-      return getSettings().then(async (settings) => {
-        const host = hostnameFromUrl(msg.url);
+      return getSettings().then(async function (settings) {
+        var host = hostnameFromUrl(msg.url);
         if (!host) return { ok: false };
         if (settings.mode === "blacklist") {
           if (!settings.excludedSites.includes(host)) {
             settings.excludedSites.push(host);
           }
         } else {
-          // whitelist mode — remove from whitelist
-          settings.whitelistedSites = settings.whitelistedSites.filter((s) => s !== host);
+          settings.whitelistedSites = settings.whitelistedSites.filter(function (s) { return s !== host; });
         }
         await saveSettings(settings);
         await broadcastToAllTabs();
@@ -161,13 +220,12 @@ browser.runtime.onMessage.addListener((msg, sender) => {
       });
 
     case "INCLUDE_SITE":
-      return getSettings().then(async (settings) => {
-        const host = hostnameFromUrl(msg.url);
+      return getSettings().then(async function (settings) {
+        var host = hostnameFromUrl(msg.url);
         if (!host) return { ok: false };
         if (settings.mode === "blacklist") {
-          settings.excludedSites = settings.excludedSites.filter((s) => s !== host);
+          settings.excludedSites = settings.excludedSites.filter(function (s) { return s !== host; });
         } else {
-          // whitelist mode — add to whitelist
           if (!settings.whitelistedSites.includes(host)) {
             settings.whitelistedSites.push(host);
           }
@@ -178,8 +236,8 @@ browser.runtime.onMessage.addListener((msg, sender) => {
       });
 
     case "SAVE_SITE_OVERRIDE":
-      return getSettings().then(async (settings) => {
-        const host = hostnameFromUrl(msg.url);
+      return getSettings().then(async function (settings) {
+        var host = hostnameFromUrl(msg.url);
         if (!host) return { ok: false };
         if (!settings.siteOverrides) settings.siteOverrides = {};
         settings.siteOverrides[host] = msg.override;
@@ -189,8 +247,8 @@ browser.runtime.onMessage.addListener((msg, sender) => {
       });
 
     case "CLEAR_SITE_OVERRIDE":
-      return getSettings().then(async (settings) => {
-        const host = hostnameFromUrl(msg.url);
+      return getSettings().then(async function (settings) {
+        var host = hostnameFromUrl(msg.url);
         if (settings.siteOverrides) delete settings.siteOverrides[host];
         await saveSettings(settings);
         await broadcastToAllTabs();
@@ -198,19 +256,19 @@ browser.runtime.onMessage.addListener((msg, sender) => {
       });
 
     case "EXPORT_SETTINGS":
-      return getSettings().then((settings) => {
+      return getSettings().then(function (settings) {
         return { json: JSON.stringify(settings, null, 2) };
       });
 
     case "IMPORT_SETTINGS":
-      return (async () => {
+      return (async function () {
         try {
-          const imported = JSON.parse(msg.json);
-          const merged = Object.assign({}, DEFAULT_SETTINGS, imported);
+          var imported = JSON.parse(msg.json);
+          var merged = Object.assign({}, DEFAULT_SETTINGS, imported);
           await saveSettings(merged);
           await broadcastToAllTabs();
           return { ok: true };
-        } catch {
+        } catch (e) {
           return { ok: false, error: "Invalid JSON" };
         }
       })();
@@ -222,27 +280,32 @@ browser.runtime.onMessage.addListener((msg, sender) => {
 
 // ── Tab events ──
 
-browser.tabs.onActivated.addListener(async ({ tabId }) => {
+browser.tabs.onActivated.addListener(async function (info) {
   try {
-    const tab = await browser.tabs.get(tabId);
-    const { active } = await resolveStateForTab(tab);
-    updateBadge(tabId, active);
-  } catch {}
+    var tab = await browser.tabs.get(info.tabId);
+    var result = await resolveStateForTab(tab);
+    updateBadge(info.tabId, result.active);
+  } catch (e) { /* tab not found */ }
 });
 
-browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
   if (changeInfo.status === "loading") {
-    const { active } = await resolveStateForTab(tab);
-    updateBadge(tabId, active);
+    var result = await resolveStateForTab(tab);
+    updateBadge(tabId, result.active);
   }
+});
+
+// Clean up tab overrides when tab closes
+browser.tabs.onRemoved.addListener(function (tabId) {
+  delete tabOverrides[tabId];
 });
 
 // ── Keyboard shortcut ──
 
 if (browser.commands && browser.commands.onCommand) {
-  browser.commands.onCommand.addListener(async (command) => {
+  browser.commands.onCommand.addListener(async function (command) {
     if (command === "toggle-dark-mode") {
-      const settings = await getSettings();
+      var settings = await getSettings();
       settings.enabled = !settings.enabled;
       await saveSettings(settings);
       await broadcastToAllTabs();

@@ -1,13 +1,12 @@
 {
   "manifest_version": 2,
   "name": "OLED Dark Mode",
-  "version": "2.0.0",
-  "description": "Universal OLED dark mode for every website. Preserves images, per-site settings, whitelist mode, schedule, theme presets. Works on Android and PC.",
+  "version": "3.0.0",
+  "description": "Universal OLED dark mode with 6 themes, per-site settings, text readability boost, scheduling, and system theme detection. Works on Android and desktop.",
   "permissions": [
     "activeTab",
     "storage",
-    "tabs",
-    "<all_urls>"
+    "tabs"
   ],
   "browser_specific_settings": {
     "gecko": {
@@ -15,7 +14,7 @@
       "strict_min_version": "57.0"
     },
     "gecko_android": {
-      "strict_min_version": "113.0"
+      "strict_min_version": "120.0"
     }
   },
   "background": {

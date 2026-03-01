@@ -1,5 +1,5 @@
 /*
- * OLED Dark Mode v2 - Core stylesheet
+ * OLED Dark Mode v3 - Core stylesheet
  * Injected at document_start — page never flashes white.
  *
  * Strategy:
@@ -8,7 +8,7 @@
  *   3. Style form controls, scrollbars, selection, color-scheme
  *
  * Activated by class "oled-dark-active" on <html>.
- * Theme variants via data attribute: data-oled-theme="oled|dark|midnight|charcoal"
+ * Themes: data-oled-theme="oled|dark|midnight|charcoal|nord|solarized"
  */
 
 /* ═══════════════════════════════════════════
@@ -26,33 +26,48 @@ html.oled-dark-active {
   -moz-filter: invert(100%) hue-rotate(180deg) !important;
 }
 
-/* Theme background colors (after inversion, we set the *inverted* value) */
+/* ═══════════════════════════════════════════
+   2. Theme background colors (after inversion)
+   ═══════════════════════════════════════════ */
+
 /* OLED Pure Black (default) */
 html.oled-dark-active,
 html.oled-dark-active body {
   background-color: #000 !important;
 }
 
-/* Dark Gray theme */
+/* Dark Gray */
 html.oled-dark-active[data-oled-theme="dark"],
 html.oled-dark-active[data-oled-theme="dark"] body {
   background-color: #0a0a0a !important;
 }
 
-/* Midnight Blue theme */
+/* Midnight Blue */
 html.oled-dark-active[data-oled-theme="midnight"],
 html.oled-dark-active[data-oled-theme="midnight"] body {
   background-color: #020210 !important;
 }
 
-/* Charcoal theme */
+/* Charcoal */
 html.oled-dark-active[data-oled-theme="charcoal"],
 html.oled-dark-active[data-oled-theme="charcoal"] body {
   background-color: #101010 !important;
 }
 
+/* Nord — deep blue-gray (#2E3440 inverted) */
+html.oled-dark-active[data-oled-theme="nord"],
+html.oled-dark-active[data-oled-theme="nord"] body {
+  background-color: #060a10 !important;
+}
+
+/* Solarized Dark — deep blue-green (#002b36 inverted) */
+html.oled-dark-active[data-oled-theme="solarized"],
+html.oled-dark-active[data-oled-theme="solarized"] body {
+  background-color: #00090c !important;
+}
+
 /* ═══════════════════════════════════════════
-   2. Re-invert media — images stay original
+   3. Re-invert media — images stay original
    ═══════════════════════════════════════════ */
 html.oled-dark-active img,
 html.oled-dark-active picture,
@@ -85,7 +100,15 @@ html.oled-dark-active [style*="background-image"] video {
 }
 
 /* ═══════════════════════════════════════════
-   3. Emoji / icon elements — re-invert
+   4. SVG icons — keep recognizable
+   ═══════════════════════════════════════════ */
+html.oled-dark-active svg:not([class*="logo"]):not([class*="brand"]) {
+  filter: invert(100%) hue-rotate(180deg) !important;
+  -moz-filter: invert(100%) hue-rotate(180deg) !important;
+}
+
+/* ═══════════════════════════════════════════
+   5. Emoji / icon elements — re-invert
    ═══════════════════════════════════════════ */
 html.oled-dark-active .emoji,
 html.oled-dark-active .emojione,
@@ -96,7 +119,7 @@ html.oled-dark-active [role="img"]:not(svg) {
 }
 
 /* ═══════════════════════════════════════════
-   4. Form controls — dark styling
+   6. Form controls — dark styling
    ═══════════════════════════════════════════ */
 html.oled-dark-active input,
 html.oled-dark-active textarea,
@@ -120,7 +143,7 @@ html.oled-dark-active textarea::placeholder {
 }
 
 /* ═══════════════════════════════════════════
-   5. Code blocks & pre elements
+   7. Code blocks & pre elements
    ═══════════════════════════════════════════ */
 html.oled-dark-active pre,
 html.oled-dark-active code,
@@ -131,7 +154,34 @@ html.oled-dark-active .monaco-editor {
 }
 
 /* ═══════════════════════════════════════════
-   6. Image dimming (opt-in via class)
+   8. Text readability boost (opt-in via class)
+   ═══════════════════════════════════════════ */
+html.oled-dark-active.oled-readable-text p,
+html.oled-dark-active.oled-readable-text span,
+html.oled-dark-active.oled-readable-text li,
+html.oled-dark-active.oled-readable-text td,
+html.oled-dark-active.oled-readable-text th,
+html.oled-dark-active.oled-readable-text div,
+html.oled-dark-active.oled-readable-text article,
+html.oled-dark-active.oled-readable-text section,
+html.oled-dark-active.oled-readable-text label,
+html.oled-dark-active.oled-readable-text a {
+  text-shadow: 0 0 0 transparent !important;
+}
+
+/* Force minimum text brightness when readability is on */
+html.oled-dark-active.oled-readable-text {
+  --oled-text-min: #d4d4d4;
+}
+
+html.oled-dark-active.oled-readable-text body {
+  -moz-osx-font-smoothing: grayscale !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* ═══════════════════════════════════════════
+   9. Image dimming (opt-in via class)
    ═══════════════════════════════════════════ */
 html.oled-dark-active.oled-dim-images img,
 html.oled-dark-active.oled-dim-images picture,
@@ -148,7 +198,7 @@ html.oled-dark-active.oled-dim-images video:hover {
 }
 
 /* ═══════════════════════════════════════════
-   7. Scrollbars
+  10. Scrollbars
    ═══════════════════════════════════════════ */
 html.oled-dark-active {
   scrollbar-color: #444 #000 !important;
@@ -167,7 +217,7 @@ html.oled-dark-active *::-webkit-scrollbar-thumb:hover {
 }
 
 /* ═══════════════════════════════════════════
-   8. Selection colors
+  11. Selection colors
    ═══════════════════════════════════════════ */
 html.oled-dark-active ::selection {
   background: #1565c0 !important;
@@ -179,7 +229,7 @@ html.oled-dark-active ::-moz-selection {
 }
 
 /* ═══════════════════════════════════════════
-   9. Tables — subtle borders
+  12. Tables — subtle borders
    ═══════════════════════════════════════════ */
 html.oled-dark-active table,
 html.oled-dark-active th,
@@ -188,7 +238,7 @@ html.oled-dark-active td {
 }
 
 /* ═══════════════════════════════════════════
-  10. HR / dividers
+  13. HR / dividers
    ═══════════════════════════════════════════ */
 html.oled-dark-active hr {
   border-color: #222 !important;
@@ -196,14 +246,14 @@ html.oled-dark-active hr {
 }
 
 /* ═══════════════════════════════════════════
-  11. Smooth transition when toggling
+  14. Smooth transition when toggling
    ═══════════════════════════════════════════ */
 html {
   transition: filter 0.25s ease-in-out;
 }
 
 /* ═══════════════════════════════════════════
-  12. Print — disable dark mode
+  15. Print — disable dark mode
    ═══════════════════════════════════════════ */
 @media print {
   html.oled-dark-active,

@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>OLED Dark Mode <span class="ver">v2.0</span></h1>
+    <h1>OLED Dark Mode <span class="ver">v3.0</span></h1>
 
     <!-- Mode -->
     <section>
@@ -89,6 +89,24 @@
         </label>
       </div>
       <p class="help indent">If a site already has a dark background, skip the inversion.</p>
+
+      <div class="row">
+        <label for="followSystemTheme">Follow system dark mode</label>
+        <label class="switch" for="followSystemTheme">
+          <input type="checkbox" id="followSystemTheme">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p class="help indent">Auto-enable when your OS is set to dark mode.</p>
+
+      <div class="row">
+        <label for="textReadabilityOpt">Text readability boost</label>
+        <label class="switch" for="textReadabilityOpt">
+          <input type="checkbox" id="textReadabilityOpt">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p class="help indent">Improve text rendering and contrast in dark mode.</p>
     </section>
 
     <!-- Keyboard shortcut -->

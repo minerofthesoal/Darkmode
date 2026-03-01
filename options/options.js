@@ -1,42 +1,44 @@
-// OLED Dark Mode v2 - Options page script
+// OLED Dark Mode v3 - Options page script
 (function () {
   "use strict";
 
-  const $ = (id) => document.getElementById(id);
+  var $ = function (id) { return document.getElementById(id); };
 
   // Elements
-  const modeBlacklist = $("modeBlacklist");
-  const modeWhitelist = $("modeWhitelist");
-  const excludedSection = $("excludedSection");
-  const whitelistSection = $("whitelistSection");
-  const excludedList = $("excludedList");
-  const whitelistedList = $("whitelistedList");
-  const newExcludedSite = $("newExcludedSite");
-  const addExcludedBtn = $("addExcludedBtn");
-  const newWhitelistSite = $("newWhitelistSite");
-  const addWhitelistBtn = $("addWhitelistBtn");
-  const overridesList = $("overridesList");
-  const noOverrides = $("noOverrides");
-  const scheduleEnabled = $("scheduleEnabled");
-  const scheduleRow = $("scheduleRow");
-  const scheduleStart = $("scheduleStart");
-  const scheduleEnd = $("scheduleEnd");
-  const respectNativeDark = $("respectNativeDark");
-  const exportBtn = $("exportBtn");
-  const importBtn = $("importBtn");
-  const jsonArea = $("jsonArea");
-  const importActions = $("importActions");
-  const confirmImport = $("confirmImport");
-  const cancelImport = $("cancelImport");
-  const saveBtn = $("saveBtn");
-  const savedMsg = $("savedMsg");
+  var modeBlacklist = $("modeBlacklist");
+  var modeWhitelist = $("modeWhitelist");
+  var excludedSection = $("excludedSection");
+  var whitelistSection = $("whitelistSection");
+  var excludedList = $("excludedList");
+  var whitelistedList = $("whitelistedList");
+  var newExcludedSite = $("newExcludedSite");
+  var addExcludedBtn = $("addExcludedBtn");
+  var newWhitelistSite = $("newWhitelistSite");
+  var addWhitelistBtn = $("addWhitelistBtn");
+  var overridesList = $("overridesList");
+  var noOverrides = $("noOverrides");
+  var scheduleEnabled = $("scheduleEnabled");
+  var scheduleRow = $("scheduleRow");
+  var scheduleStart = $("scheduleStart");
+  var scheduleEnd = $("scheduleEnd");
+  var respectNativeDark = $("respectNativeDark");
+  var followSystemTheme = $("followSystemTheme");
+  var textReadabilityOpt = $("textReadabilityOpt");
+  var exportBtn = $("exportBtn");
+  var importBtn = $("importBtn");
+  var jsonArea = $("jsonArea");
+  var importActions = $("importActions");
+  var confirmImport = $("confirmImport");
+  var cancelImport = $("cancelImport");
+  var saveBtn = $("saveBtn");
+  var savedMsg = $("savedMsg");
 
-  let settings = null;
+  var settings = null;
 
   // ── Load ──
 
   async function load() {
-    const resp = await browser.runtime.sendMessage({ type: "GET_STATE" });
+    var resp = await browser.runtime.sendMessage({ type: "GET_STATE" });
     settings = resp.settings;
 
     // Mode
@@ -55,6 +57,8 @@
 
     // Behaviour
     respectNativeDark.checked = settings.respectNativeDark || false;
+    followSystemTheme.checked = settings.followSystemTheme || false;
+    textReadabilityOpt.checked = settings.textReadability || false;
 
     renderExcluded();
     renderWhitelisted();
@@ -62,7 +66,7 @@
   }
 
   function updateModeVisibility() {
-    const isWhitelist = modeWhitelist.checked;
+    var isWhitelist = modeWhitelist.checked;
     excludedSection.style.display = isWhitelist ? "none" : "block";
     whitelistSection.style.display = isWhitelist ? "block" : "none";
   }
@@ -71,9 +75,9 @@
 
   function renderExcluded() {
     while (excludedList.firstChild) excludedList.firstChild.remove();
-    (settings.excludedSites || []).forEach((site) => {
-      excludedList.appendChild(createListItem(site, () => {
-        settings.excludedSites = settings.excludedSites.filter((s) => s !== site);
+    (settings.excludedSites || []).forEach(function (site) {
+      excludedList.appendChild(createListItem(site, function () {
+        settings.excludedSites = settings.excludedSites.filter(function (s) { return s !== site; });
         renderExcluded();
       }));
     });
@@ -81,9 +85,9 @@
 
   function renderWhitelisted() {
     while (whitelistedList.firstChild) whitelistedList.firstChild.remove();
-    (settings.whitelistedSites || []).forEach((site) => {
-      whitelistedList.appendChild(createListItem(site, () => {
-        settings.whitelistedSites = settings.whitelistedSites.filter((s) => s !== site);
+    (settings.whitelistedSites || []).forEach(function (site) {
+      whitelistedList.appendChild(createListItem(site, function () {
+        settings.whitelistedSites = settings.whitelistedSites.filter(function (s) { return s !== site; });
         renderWhitelisted();
       }));
     });
@@ -91,32 +95,32 @@
 
   function renderOverrides() {
     while (overridesList.firstChild) overridesList.firstChild.remove();
-    const overrides = settings.siteOverrides || {};
-    const keys = Object.keys(overrides);
+    var overrides = settings.siteOverrides || {};
+    var keys = Object.keys(overrides);
     noOverrides.style.display = keys.length === 0 ? "block" : "none";
 
-    keys.forEach((site) => {
-      const o = overrides[site];
-      const details = [];
+    keys.forEach(function (site) {
+      var o = overrides[site];
+      var details = [];
       if (o.theme) details.push(o.theme);
       if (o.brightness !== undefined && o.brightness !== 100) details.push("b:" + o.brightness);
       if (o.contrast !== undefined && o.contrast !== 100) details.push("c:" + o.contrast);
 
-      const li = document.createElement("li");
-      const textSpan = document.createElement("span");
+      var li = document.createElement("li");
+      var textSpan = document.createElement("span");
       textSpan.textContent = site;
       if (details.length > 0) {
-        const detailSpan = document.createElement("span");
+        var detailSpan = document.createElement("span");
         detailSpan.className = "override-detail";
         detailSpan.textContent = details.join(", ");
         textSpan.appendChild(detailSpan);
       }
       li.appendChild(textSpan);
 
-      const btn = document.createElement("button");
+      var btn = document.createElement("button");
       btn.textContent = "\u00d7";
       btn.title = "Remove override";
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", function () {
         delete settings.siteOverrides[site];
         renderOverrides();
       });
@@ -126,11 +130,11 @@
   }
 
   function createListItem(text, onRemove) {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
+    var li = document.createElement("li");
+    var span = document.createElement("span");
     span.textContent = text;
     li.appendChild(span);
-    const btn = document.createElement("button");
+    var btn = document.createElement("button");
     btn.textContent = "\u00d7";
     btn.title = "Remove";
     btn.addEventListener("click", onRemove);
@@ -145,24 +149,24 @@
   modeBlacklist.addEventListener("change", updateModeVisibility);
   modeWhitelist.addEventListener("change", updateModeVisibility);
 
-  scheduleEnabled.addEventListener("change", () => {
+  scheduleEnabled.addEventListener("change", function () {
     scheduleRow.style.display = scheduleEnabled.checked ? "flex" : "none";
   });
 
-  addExcludedBtn.addEventListener("click", () => {
-    const val = newExcludedSite.value.trim().toLowerCase();
+  addExcludedBtn.addEventListener("click", function () {
+    var val = newExcludedSite.value.trim().toLowerCase();
     if (val && !settings.excludedSites.includes(val)) {
       settings.excludedSites.push(val);
       renderExcluded();
       newExcludedSite.value = "";
     }
   });
-  newExcludedSite.addEventListener("keydown", (e) => {
+  newExcludedSite.addEventListener("keydown", function (e) {
     if (e.key === "Enter") addExcludedBtn.click();
   });
 
-  addWhitelistBtn.addEventListener("click", () => {
-    const val = newWhitelistSite.value.trim().toLowerCase();
+  addWhitelistBtn.addEventListener("click", function () {
+    var val = newWhitelistSite.value.trim().toLowerCase();
     if (!settings.whitelistedSites) settings.whitelistedSites = [];
     if (val && !settings.whitelistedSites.includes(val)) {
       settings.whitelistedSites.push(val);
@@ -170,30 +174,30 @@
       newWhitelistSite.value = "";
     }
   });
-  newWhitelistSite.addEventListener("keydown", (e) => {
+  newWhitelistSite.addEventListener("keydown", function (e) {
     if (e.key === "Enter") addWhitelistBtn.click();
   });
 
   // Import / Export
-  exportBtn.addEventListener("click", async () => {
-    const resp = await browser.runtime.sendMessage({ type: "EXPORT_SETTINGS" });
+  exportBtn.addEventListener("click", async function () {
+    var resp = await browser.runtime.sendMessage({ type: "EXPORT_SETTINGS" });
     jsonArea.value = resp.json;
     jsonArea.style.display = "block";
     jsonArea.select();
     importActions.style.display = "none";
   });
 
-  importBtn.addEventListener("click", () => {
+  importBtn.addEventListener("click", function () {
     jsonArea.value = "";
     jsonArea.style.display = "block";
     importActions.style.display = "flex";
     jsonArea.focus();
   });
 
-  confirmImport.addEventListener("click", async () => {
-    const json = jsonArea.value.trim();
+  confirmImport.addEventListener("click", async function () {
+    var json = jsonArea.value.trim();
     if (!json) return;
-    const resp = await browser.runtime.sendMessage({ type: "IMPORT_SETTINGS", json });
+    var resp = await browser.runtime.sendMessage({ type: "IMPORT_SETTINGS", json: json });
     if (resp.ok) {
       jsonArea.style.display = "none";
       importActions.style.display = "none";
@@ -204,22 +208,24 @@
     }
   });
 
-  cancelImport.addEventListener("click", () => {
+  cancelImport.addEventListener("click", function () {
     jsonArea.style.display = "none";
     importActions.style.display = "none";
   });
 
   // Save
-  saveBtn.addEventListener("click", async () => {
+  saveBtn.addEventListener("click", async function () {
     settings.mode = modeWhitelist.checked ? "whitelist" : "blacklist";
     settings.scheduleEnabled = scheduleEnabled.checked;
     settings.scheduleStart = scheduleStart.value;
     settings.scheduleEnd = scheduleEnd.value;
     settings.respectNativeDark = respectNativeDark.checked;
+    settings.followSystemTheme = followSystemTheme.checked;
+    settings.textReadability = textReadabilityOpt.checked;
 
     await browser.runtime.sendMessage({
       type: "SAVE_SETTINGS",
-      settings
+      settings: settings
     });
 
     flash("Saved!");
@@ -229,6 +235,6 @@
     savedMsg.textContent = text;
     savedMsg.style.color = isError ? "#f44336" : "#00c853";
     savedMsg.classList.add("show");
-    setTimeout(() => savedMsg.classList.remove("show"), 2000);
+    setTimeout(function () { savedMsg.classList.remove("show"); }, 2000);
   }
 })();

@@ -12,7 +12,7 @@
     <header>
       <div class="header-left">
         <h1>OLED Dark Mode</h1>
-        <span class="version">v2</span>
+        <span class="version">v3</span>
       </div>
       <label class="switch" for="globalToggle">
         <input type="checkbox" id="globalToggle">
@@ -26,7 +26,10 @@
         <span class="site-label" id="siteLabel">--</span>
         <span class="mode-badge" id="modeBadge">blacklist</span>
       </div>
-      <button class="btn btn-sm" id="siteToggle">Exclude site</button>
+      <div class="site-actions">
+        <button class="btn btn-sm" id="tabToggle" title="Toggle this tab only">Tab</button>
+        <button class="btn btn-sm" id="siteToggle">Exclude site</button>
+      </div>
     </section>
 
     <!-- Theme presets -->
@@ -42,8 +45,16 @@
         <button class="theme-btn" data-theme="midnight" title="Midnight Blue">
           <span class="swatch" style="background:#0a0a2e"></span> Night
         </button>
+      </div>
+      <div class="theme-row theme-row-2" id="themeRow2">
         <button class="theme-btn" data-theme="charcoal" title="Charcoal">
           <span class="swatch" style="background:#222"></span> Coal
+        </button>
+        <button class="theme-btn" data-theme="nord" title="Nord">
+          <span class="swatch" style="background:#2e3440"></span> Nord
+        </button>
+        <button class="theme-btn" data-theme="solarized" title="Solarized Dark">
+          <span class="swatch" style="background:#002b36"></span> Solar
         </button>
       </div>
     </section>
@@ -89,6 +100,17 @@
       </div>
     </section>
 
+    <!-- Text readability -->
+    <section class="controls">
+      <div class="control-row toggle-row">
+        <label for="textReadability">Text readability</label>
+        <label class="switch small" for="textReadability">
+          <input type="checkbox" id="textReadability">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </section>
+
     <!-- Per-site override -->
     <section class="controls">
       <div class="control-row toggle-row">
@@ -99,8 +121,8 @@
         </label>
       </div>
       <div id="perSiteInfo" class="per-site-info" style="display:none">
-        <span class="help-text">Adjustments above will be saved for this site only.</span>
-        <button class="btn btn-xs" id="clearOverride">Clear override</button>
+        <span class="help-text">Adjustments above saved for this site only.</span>
+        <button class="btn btn-xs" id="clearOverride">Clear</button>
       </div>
     </section>
 
