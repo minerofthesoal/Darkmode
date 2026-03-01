@@ -8,24 +8,49 @@
 </head>
 <body>
   <div class="popup">
+    <!-- Header -->
     <header>
-      <h1>OLED Dark Mode</h1>
-      <div class="toggle-wrap">
-        <label class="switch" for="globalToggle">
-          <input type="checkbox" id="globalToggle">
-          <span class="slider"></span>
-        </label>
+      <div class="header-left">
+        <h1>OLED Dark Mode</h1>
+        <span class="version">v2</span>
       </div>
+      <label class="switch" for="globalToggle">
+        <input type="checkbox" id="globalToggle">
+        <span class="slider"></span>
+      </label>
     </header>
 
+    <!-- Current site -->
     <section class="site-section">
-      <span class="site-label" id="siteLabel">—</span>
-      <button class="btn btn-sm" id="siteToggle" title="Exclude / include this site">
-        Exclude site
-      </button>
+      <div class="site-info">
+        <span class="site-label" id="siteLabel">--</span>
+        <span class="mode-badge" id="modeBadge">blacklist</span>
+      </div>
+      <button class="btn btn-sm" id="siteToggle">Exclude site</button>
     </section>
 
+    <!-- Theme presets -->
     <section class="controls">
+      <div class="section-title">Theme</div>
+      <div class="theme-row" id="themeRow">
+        <button class="theme-btn active" data-theme="oled" title="Pure Black">
+          <span class="swatch" style="background:#000"></span> OLED
+        </button>
+        <button class="theme-btn" data-theme="dark" title="Dark Gray">
+          <span class="swatch" style="background:#1a1a1a"></span> Dark
+        </button>
+        <button class="theme-btn" data-theme="midnight" title="Midnight Blue">
+          <span class="swatch" style="background:#0a0a2e"></span> Night
+        </button>
+        <button class="theme-btn" data-theme="charcoal" title="Charcoal">
+          <span class="swatch" style="background:#222"></span> Coal
+        </button>
+      </div>
+    </section>
+
+    <!-- Adjustments -->
+    <section class="controls">
+      <div class="section-title">Adjustments</div>
       <div class="control-row">
         <label for="brightness">Brightness</label>
         <input type="range" id="brightness" min="50" max="150" value="100">
@@ -48,6 +73,7 @@
       </div>
     </section>
 
+    <!-- Images -->
     <section class="controls">
       <div class="control-row toggle-row">
         <label for="dimImages">Dim images</label>
@@ -57,12 +83,28 @@
         </label>
       </div>
       <div class="control-row" id="opacityRow" style="display:none">
-        <label for="imageOpacity">Image opacity</label>
+        <label for="imageOpacity">Opacity</label>
         <input type="range" id="imageOpacity" min="30" max="100" value="90">
         <span class="val" id="imageOpacityVal">90%</span>
       </div>
     </section>
 
+    <!-- Per-site override -->
+    <section class="controls">
+      <div class="control-row toggle-row">
+        <label for="perSiteToggle">Per-site settings</label>
+        <label class="switch small" for="perSiteToggle">
+          <input type="checkbox" id="perSiteToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div id="perSiteInfo" class="per-site-info" style="display:none">
+        <span class="help-text">Adjustments above will be saved for this site only.</span>
+        <button class="btn btn-xs" id="clearOverride">Clear override</button>
+      </div>
+    </section>
+
+    <!-- Footer -->
     <footer>
       <button class="btn btn-sm" id="resetBtn">Reset</button>
       <a href="#" id="optionsLink">Settings</a>

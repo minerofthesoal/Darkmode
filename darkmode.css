@@ -1,93 +1,219 @@
 /*
- * OLED Dark Mode - Core stylesheet
- * Injected at document_start so the page never flashes white.
- * Uses CSS filter inversion + hue rotation on <html>, then re-inverts
- * media elements so images / video / canvas stay original.
+ * OLED Dark Mode v2 - Core stylesheet
+ * Injected at document_start — page never flashes white.
  *
- * The class "oled-dark-active" on <html> enables the effect.
- * Without that class nothing happens — clean toggle.
+ * Strategy:
+ *   1. Invert + hue-rotate on <html>  (everything goes dark)
+ *   2. Re-invert media elements       (images / video stay original)
+ *   3. Style form controls, scrollbars, selection, color-scheme
+ *
+ * Activated by class "oled-dark-active" on <html>.
+ * Theme variants via data attribute: data-oled-theme="oled|dark|midnight|charcoal"
  */
 
-/* ── Base inversion ── */
+/* ═══════════════════════════════════════════
+   0. Anti-flash: instant black before JS loads
+   ═══════════════════════════════════════════ */
 html.oled-dark-active {
-  background-color: #000 !important;
+  color-scheme: dark !important;
+}
+
+/* ═══════════════════════════════════════════
+   1. Base inversion
+   ═══════════════════════════════════════════ */
+html.oled-dark-active {
   filter: invert(100%) hue-rotate(180deg) !important;
   -moz-filter: invert(100%) hue-rotate(180deg) !important;
 }
 
-/* Force the body to be black (after inversion it maps to white → black) */
+/* Theme background colors (after inversion, we set the *inverted* value) */
+/* OLED Pure Black (default) */
+html.oled-dark-active,
 html.oled-dark-active body {
   background-color: #000 !important;
 }
 
-/* ── Re-invert media so images/video look normal ── */
+/* Dark Gray theme */
+html.oled-dark-active[data-oled-theme="dark"],
+html.oled-dark-active[data-oled-theme="dark"] body {
+  background-color: #0a0a0a !important;
+}
+
+/* Midnight Blue theme */
+html.oled-dark-active[data-oled-theme="midnight"],
+html.oled-dark-active[data-oled-theme="midnight"] body {
+  background-color: #020210 !important;
+}
+
+/* Charcoal theme */
+html.oled-dark-active[data-oled-theme="charcoal"],
+html.oled-dark-active[data-oled-theme="charcoal"] body {
+  background-color: #101010 !important;
+}
+
+/* ═══════════════════════════════════════════
+   2. Re-invert media — images stay original
+   ═══════════════════════════════════════════ */
 html.oled-dark-active img,
 html.oled-dark-active picture,
+html.oled-dark-active picture source,
 html.oled-dark-active video,
 html.oled-dark-active canvas,
 html.oled-dark-active svg image,
-html.oled-dark-active [style*="background-image"] ,
+html.oled-dark-active [style*="background-image"],
 html.oled-dark-active iframe,
 html.oled-dark-active object,
-html.oled-dark-active embed {
+html.oled-dark-active embed,
+html.oled-dark-active map,
+html.oled-dark-active .mapboxgl-map,
+html.oled-dark-active .leaflet-container,
+html.oled-dark-active .gm-style {
   filter: invert(100%) hue-rotate(180deg) !important;
   -moz-filter: invert(100%) hue-rotate(180deg) !important;
 }
 
-/* Nested media inside already-reinverted containers should not double-flip */
+/* Nested media inside already-reinverted containers — no double-flip */
 html.oled-dark-active iframe img,
 html.oled-dark-active iframe video,
+html.oled-dark-active iframe canvas,
 html.oled-dark-active object img,
-html.oled-dark-active object video {
+html.oled-dark-active object video,
+html.oled-dark-active [style*="background-image"] img,
+html.oled-dark-active [style*="background-image"] video {
   filter: none !important;
   -moz-filter: none !important;
 }
 
-/* ── Background images in pseudo-elements ── */
-html.oled-dark-active *::before,
-html.oled-dark-active *::after {
-  /* Only invert those that carry a background-image */
-  /* We cannot selectively target, so we leave them as-is.
-     The content script handles individual element overrides. */
-}
-
-/* ── Fix common UI patterns ── */
-
-/* Emoji / icon fonts should not be inverted */
+/* ═══════════════════════════════════════════
+   3. Emoji / icon elements — re-invert
+   ═══════════════════════════════════════════ */
 html.oled-dark-active .emoji,
 html.oled-dark-active .emojione,
 html.oled-dark-active [data-emoji],
-html.oled-dark-active [role="img"] {
+html.oled-dark-active [role="img"]:not(svg) {
   filter: invert(100%) hue-rotate(180deg) !important;
   -moz-filter: invert(100%) hue-rotate(180deg) !important;
 }
 
-/* ── Image dimming (toggled via custom property) ── */
+/* ═══════════════════════════════════════════
+   4. Form controls — dark styling
+   ═══════════════════════════════════════════ */
+html.oled-dark-active input,
+html.oled-dark-active textarea,
+html.oled-dark-active select,
+html.oled-dark-active button,
+html.oled-dark-active [contenteditable="true"] {
+  color-scheme: dark !important;
+}
+
+html.oled-dark-active input:not([type="image"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html.oled-dark-active textarea,
+html.oled-dark-active select {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+  border-color: #333 !important;
+}
+
+html.oled-dark-active input::placeholder,
+html.oled-dark-active textarea::placeholder {
+  color: #666 !important;
+}
+
+/* ═══════════════════════════════════════════
+   5. Code blocks & pre elements
+   ═══════════════════════════════════════════ */
+html.oled-dark-active pre,
+html.oled-dark-active code,
+html.oled-dark-active .highlight,
+html.oled-dark-active .CodeMirror,
+html.oled-dark-active .monaco-editor {
+  background-color: #0d0d0d !important;
+}
+
+/* ═══════════════════════════════════════════
+   6. Image dimming (opt-in via class)
+   ═══════════════════════════════════════════ */
 html.oled-dark-active.oled-dim-images img,
 html.oled-dark-active.oled-dim-images picture,
 html.oled-dark-active.oled-dim-images video {
   opacity: var(--oled-image-opacity, 0.9) !important;
+  transition: opacity 0.2s !important;
 }
 
-/* ── Scrollbar dark mode (Firefox supports this) ── */
+/* Hover to reveal full brightness */
+html.oled-dark-active.oled-dim-images img:hover,
+html.oled-dark-active.oled-dim-images picture:hover,
+html.oled-dark-active.oled-dim-images video:hover {
+  opacity: 1 !important;
+}
+
+/* ═══════════════════════════════════════════
+   7. Scrollbars
+   ═══════════════════════════════════════════ */
 html.oled-dark-active {
   scrollbar-color: #444 #000 !important;
 }
 
 html.oled-dark-active *::-webkit-scrollbar {
   background: #000 !important;
+  width: 10px !important;
 }
 html.oled-dark-active *::-webkit-scrollbar-thumb {
-  background: #444 !important;
+  background: #333 !important;
+  border-radius: 5px !important;
+}
+html.oled-dark-active *::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
 }
 
-/* ── Selection colors ── */
+/* ═══════════════════════════════════════════
+   8. Selection colors
+   ═══════════════════════════════════════════ */
 html.oled-dark-active ::selection {
   background: #1565c0 !important;
   color: #fff !important;
 }
+html.oled-dark-active ::-moz-selection {
+  background: #1565c0 !important;
+  color: #fff !important;
+}
 
-/* ── Smooth transition when toggling ── */
+/* ═══════════════════════════════════════════
+   9. Tables — subtle borders
+   ═══════════════════════════════════════════ */
+html.oled-dark-active table,
+html.oled-dark-active th,
+html.oled-dark-active td {
+  border-color: #222 !important;
+}
+
+/* ═══════════════════════════════════════════
+  10. HR / dividers
+   ═══════════════════════════════════════════ */
+html.oled-dark-active hr {
+  border-color: #222 !important;
+  background-color: #222 !important;
+}
+
+/* ═══════════════════════════════════════════
+  11. Smooth transition when toggling
+   ═══════════════════════════════════════════ */
 html {
-  transition: filter 0.2s ease-in-out;
+  transition: filter 0.25s ease-in-out;
+}
+
+/* ═══════════════════════════════════════════
+  12. Print — disable dark mode
+   ═══════════════════════════════════════════ */
+@media print {
+  html.oled-dark-active,
+  html.oled-dark-active body,
+  html.oled-dark-active img,
+  html.oled-dark-active video,
+  html.oled-dark-active canvas,
+  html.oled-dark-active iframe {
+    filter: none !important;
+    -moz-filter: none !important;
+    background-color: inherit !important;
+  }
 }
